@@ -55,7 +55,10 @@ namespace Rhino.ServiceBus.StructureMap
                 foreach (var messageModule in config.MessageModules)
                 {
                     Type module = messageModule;
-                    c.For(typeof(IMessageModule)).Singleton().Use(module).Named(typeof(IMessageModule).FullName);
+                    if (!container.Model.HasImplementationsFor(module))
+                    {
+                        c.For(typeof(IMessageModule)).Singleton().Use(module).Named(typeof(IMessageModule).FullName);
+                    }
                 }
 
                 c.For<IReflection>().Singleton().Use<DefaultReflection>();
@@ -82,6 +85,8 @@ namespace Rhino.ServiceBus.StructureMap
                     .Ctor<MessageOwner[]>().Is(busConfig.MessageOwners.ToArray());
                 c.Forward<IStartableServiceBus, IStartable>();
                 c.Forward<IStartableServiceBus, IServiceBus>();
+                c.For<IStartable>().Singleton();
+                c.For<IServiceBus>().Singleton();
             });
         }
 
@@ -138,8 +143,8 @@ namespace Rhino.ServiceBus.StructureMap
         {
             container.Configure(c =>
             {
-                c.For<IMessageModule>().Singleton()
-                    .Use(ctx => new MessageLoggingModule(ctx.GetInstance<IEndpointRouter>(), logEndpoint));
+                c.ForSingletonOf<MessageLoggingModule>().Use(ctx => new MessageLoggingModule(ctx.GetInstance<IEndpointRouter>(), logEndpoint));
+                c.Forward<MessageLoggingModule, IMessageModule>();
                 c.For<IDeploymentAction>().Use<CreateLogQueueAction>();
             });
         }
