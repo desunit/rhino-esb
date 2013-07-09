@@ -28,10 +28,21 @@ namespace Rhino.ServiceBus.Hosting
         }
 
         public void Start<TBootStrapper>()
-            where TBootStrapper : AbstractBootStrapper
+    where TBootStrapper : AbstractBootStrapper
         {
             SetBootStrapperTypeName(typeof(TBootStrapper).FullName);
             Start(typeof(TBootStrapper).Assembly.FullName);
+        }
+
+        public void Start<TBootStrapper>(TBootStrapper bootStrapper) where TBootStrapper : AbstractBootStrapper
+        {
+            this.bootStrapper = bootStrapper;
+
+            InitailizeBus(typeof(TBootStrapper).Assembly.FullName);
+
+            startable.Start();
+
+            bootStrapper.EndStart();
         }
 
         public void Start(string asmName)
@@ -47,7 +58,8 @@ namespace Rhino.ServiceBus.Hosting
         {
             assemblyName = asmName;
 
-            CreateBootStrapper();
+            if (bootStrapper == null)
+                CreateBootStrapper();
 
             InitializeContainer();
 

@@ -246,7 +246,7 @@ namespace Rhino.ServiceBus.Msmq
 				catch (Exception e)
 				{
 					ex = e;
-					logger.Error("Failed to process message", e);
+					logger.Warn("Failed to process message", e);
 				}
 			}
 			catch (Exception e)

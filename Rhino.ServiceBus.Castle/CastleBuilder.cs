@@ -87,6 +87,13 @@ namespace Rhino.ServiceBus.Castle
         {
             var busConfig = (RhinoServiceBusConfiguration)config;
 
+            foreach (var messageModule in config.MessageModules)
+            {
+                Component.For<IMessageModule>()
+                    .LifeStyle.Is(LifestyleType.Singleton)
+                    .ImplementedBy(messageModule);
+            }
+
             container.Register(
                 Component.For<IDeploymentAction>()
                     .ImplementedBy<CreateLogQueueAction>(),
@@ -96,10 +103,17 @@ namespace Rhino.ServiceBus.Castle
                     .ImplementedBy<DefaultServiceBus>()
                     .LifeStyle.Is(LifestyleType.Singleton)
                     .DependsOn(new
-                    {
-                        messageOwners = busConfig.MessageOwners.ToArray(),
-                    })
-                    .DependsOn(Dependency.OnConfigValue("modules", CreateModuleConfigurationNode(busConfig.MessageModules))));
+                                   {
+                                       messageOwners = busConfig.MessageOwners.ToArray(),
+                                   })
+                    .DependsOn(new
+                                   {
+                                       modules = container.ResolveAll<IMessageModule>()
+                                   })
+                        
+
+                        //Parameter.ForKey("modules").Eq((IConfiguration)null) /*CreateModuleConfigurationNode(busConfig.MessageModules) 
+            );
         }
 
         private static IConfiguration CreateModuleConfigurationNode(IEnumerable<Type> messageModules)
@@ -224,12 +238,12 @@ namespace Rhino.ServiceBus.Castle
             container.Register(
                 Component.For<IValueConvertor<WireEncryptedString>>()
                     .ImplementedBy<WireEncryptedStringConvertor>()
-                    .DependsOn(Dependency.OnComponent("encryptionService", "esb.security")));
+                    .DependsOn(Property.ForKey("encryptionService").Is("esb.security")));
 
             container.Register(
                 Component.For<IElementSerializationBehavior>()
                     .ImplementedBy<WireEncryptedMessageConvertor>()
-                    .DependsOn(Dependency.OnComponent("encryptionService", "esb.security")));
+                    .DependsOn(Property.ForKey("encryptionService").Is("esb.security")));
         }
 
         public void RegisterNoSecurity()

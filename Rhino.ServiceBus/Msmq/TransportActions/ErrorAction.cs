@@ -112,6 +112,7 @@ namespace Rhino.ServiceBus.Msmq.TransportActions
             if(queueStrategy.TryMoveMessage(queue, message, SubQueue.Errors,out msgId) == false)
                 return;
             
+            /*
             var desc = new Message
 			{
 				Label = ("Error description for: " + message.Label).EnsureLabelLength(),
@@ -119,8 +120,9 @@ namespace Rhino.ServiceBus.Msmq.TransportActions
                 CorrelationId = msgId
 			}.SetSubQueueToSendTo(SubQueue.Errors);
 			queueStrategy.SendToErrorQueue(queue, desc);
+            */
 
-        	logger.WarnFormat("Moving message {0} to errors subqueue because: {1}", message.Id,
+        	logger.ErrorFormat("Moving message {0} to errors subqueue because: {1}", message.Id,
                               exceptionText);
         }
 
