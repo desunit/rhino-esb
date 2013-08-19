@@ -213,10 +213,11 @@ namespace Rhino.ServiceBus.Msmq
 
                     HandlePeekedMessage(queue, message);
                 }
-                catch (ThreadAbortException)
+                catch (ThreadAbortException e)
                 {
                     //nothing much to do here, process is being killed
                     //or someone is trying to do something rude to us
+                    logger.Info("Thread aborted!", e);
                 }
                 catch (Exception e)
                 {

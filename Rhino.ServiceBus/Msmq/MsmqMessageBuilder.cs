@@ -83,6 +83,10 @@ namespace Rhino.ServiceBus.Msmq
                 message.TimeToReachQueue = TimeSpan.Zero;
             }
 
+            message.UseDeadLetterQueue = true;
+            //message.UseJournalQueue = true;
+            //message.UseTracing = true;
+
             message.Extension = extension;
 
             message.AppSpecific = GetAppSpecificMarker(msgs);
